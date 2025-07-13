@@ -89,6 +89,7 @@ void stopRobot();
 void setSpeed(int speed);
 void setSteer(int speed);
 void moveDirection(String dir);
+void addToCurrentPosition(int val);
 
 // =========================================================
 // Setup Function
@@ -211,7 +212,7 @@ void stepMotor() {
   delayMicroseconds(stepper_pulse_width);
 }
 
-void setDirection(SteeringDir dir) {
+void setDirection(bool dir) {
   //Set direction
   digitalWrite(PIN_STEER_DIR, dir);
 }
@@ -237,14 +238,14 @@ void goBack() {
 void goLeft() {
   if (current_position < max_steering_steps) {
     stepMotor();
-    current_position++;
+    addToCurrentPosition(1);
   }
 }
 
 void goRight() {
   if (abs(current_position) <= max_steering_steps) {
     stepMotor();
-    current_position--;
+    addToCurrentPosition(-1);
   }
 }
 
@@ -261,7 +262,7 @@ void goHome() {
   // Move back Home
   while (current_position != 0) {
     stepMotor();
-    current_position += (current_position > 0 ? -1 : 1);
+    addToCurrentPosition(current_position > 0 ? -1 : 1);
   }
 
   Serial.println("Steering Reached Home");
@@ -297,64 +298,64 @@ void moveDirection(String dir) {
         stopRobot();
         break;
       }
-    case 'L':
-      {
-        setDirection(st_left);
-        while (server.arg("State") == "L") {
-          goLeft();
-          server.handleClient();
-        }
-        break;
-      }
-    case 'R':
-      {
-        setDirection(st_right);
-        while (server.arg("State") == "R") {
-          goRight();
-          server.handleClient();
-        }
-        break;
-      }
-    case 'I':
-      {
-        goAhead();
-        setDirection(st_right);
-        while (server.arg("State") == "I") {
-          goRight();
-          server.handleClient();
-        }
-        break;
-      }
-    case 'G':
-      {
-        goAhead();
-        setDirection(st_left);
-        while (server.arg("State") == "G") {
-          goLeft();
-          server.handleClient();
-        }
-        break;
-      }
-    case 'J':
-      {
-        goBack();
-        setDirection(st_right);
-        while (server.arg("State") == "J") {
-          goRight();
-          server.handleClient();
-        }
-        break;
-      }
-    case 'H':
-      {
-        goBack();
-        setDirection(st_left);
-        while (server.arg("State") == "H") {
-          goLeft();
-          server.handleClient();
-        }
-        break;
-      }
+    // case 'L':
+    //   {
+    //     setDirection(st_left);
+    //     while (server.hasArg("dir") && server.arg("dir") == "L") {
+    //       goLeft();
+    //       server.handleClient();
+    //     }
+    //     break;
+    //   }
+    // case 'R':
+    //   {
+    //     setDirection(st_right);
+    //     while (server.arg("State") == "R") {
+    //       goRight();
+    //       server.handleClient();
+    //     }
+    //     break;
+    //   }
+    // case 'I':
+    //   {
+    //     goAhead();
+    //     setDirection(st_right);
+    //     while (server.arg("State") == "I") {
+    //       goRight();
+    //       server.handleClient();
+    //     }
+    //     break;
+    //   }
+    // case 'G':
+    //   {
+    //     goAhead();
+    //     setDirection(st_left);
+    //     while (server.arg("State") == "G") {
+    //       goLeft();
+    //       server.handleClient();
+    //     }
+    //     break;
+    //   }
+    // case 'J':
+    //   {
+    //     goBack();
+    //     setDirection(st_right);
+    //     while (server.arg("State") == "J") {
+    //       goRight();
+    //       server.handleClient();
+    //     }
+    //     break;
+    //   }
+    // case 'H':
+    //   {
+    //     goBack();
+    //     setDirection(st_left);
+    //     while (server.arg("State") == "H") {
+    //       goLeft();
+    //       server.handleClient();
+    //     }
+    //     break;
+    //   }
   }
 }
 
@@ -366,4 +367,11 @@ void setSpeed(int speed) {
 void setSteer(int speed) {
   // map speed to min-255
   stepper_pulse_width = map(speed, 1, 100, 10000, 1000);
+}
+
+void addToCurrentPosition(int val) {
+  current_position += val;
+  
+  Serial.print("Position changed: ");
+  Serial.println(current_position);
 }

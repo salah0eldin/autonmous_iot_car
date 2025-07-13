@@ -255,41 +255,42 @@ const char* htmlPage = R"rawliteral(
 <body>
   <div class="container">
     <div class="header">NodeMCU Car Control</div>
+    <!-- HTML buttons with updated handlers -->
     <div class="controls">
-      <!-- Top left (should be bottom right) -->
-      <button class="btn" onmousedown="sendCmd('J')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('J')" ontouchend="sendCmd('S')">
+      <!-- Top left -->
+      <button class="btn" onpointerdown="handleButtonPress('J')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="30,50 50,30 30,30" fill="#667eea"/><polygon points="30,50 40,30 30,30" fill="#764ba2"/></svg>
       </button>
-      <!-- Up -->
-      <button class="btn" onmousedown="sendCmd('F')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('F')" ontouchend="sendCmd('S')">
+      <!-- Forward -->
+      <button class="btn" onpointerdown="handleButtonPress('F')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="30,10 50,30 10,30" fill="#667eea"/><polygon points="30,10 40,30 20,30" fill="#764ba2"/></svg>
       </button>
-      <!-- Top right (should be bottom left) -->
-      <button class="btn" onmousedown="sendCmd('H')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('H')" ontouchend="sendCmd('S')">
+      <!-- Top right -->
+      <button class="btn" onpointerdown="handleButtonPress('H')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="30,50 10,30 30,30" fill="#667eea"/><polygon points="30,50 20,30 30,30" fill="#764ba2"/></svg>
       </button>
       <!-- Left -->
-      <button class="btn" onmousedown="sendCmd('L')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('L')" ontouchend="sendCmd('S')">
+      <button class="btn" onpointerdown="handleButtonPress('L')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="10,30 30,50 30,10" fill="#667eea"/><polygon points="10,30 30,40 30,20" fill="#764ba2"/></svg>
       </button>
       <!-- Stop -->
-      <button class="btn" onmousedown="sendCmd('S')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('S')" ontouchend="sendCmd('S')">
+      <button class="btn" onpointerdown="handleButtonPress('S')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" stroke="#667eea" stroke-width="5" fill="none"/><rect x="20" y="20" width="20" height="20" fill="#764ba2"/></svg>
       </button>
       <!-- Right -->
-      <button class="btn" onmousedown="sendCmd('R')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('R')" ontouchend="sendCmd('S')">
+      <button class="btn" onpointerdown="handleButtonPress('R')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="50,30 30,50 30,10" fill="#667eea"/><polygon points="50,30 30,40 30,20" fill="#764ba2"/></svg>
       </button>
-      <!-- Bottom left (should be top right) -->
-      <button class="btn" onmousedown="sendCmd('I')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('I')" ontouchend="sendCmd('S')">
+      <!-- Bottom left -->
+      <button class="btn" onpointerdown="handleButtonPress('I')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="30,10 50,30 30,30" fill="#667eea"/><polygon points="30,30 50,30 30,10" fill="#764ba2"/></svg>
       </button>
-      <!-- Down -->
-      <button class="btn" onmousedown="sendCmd('B')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('B')" ontouchend="sendCmd('S')">
+      <!-- Backward -->
+      <button class="btn" onpointerdown="handleButtonPress('B')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="30,50 50,30 10,30" fill="#667eea"/><polygon points="30,50 40,30 20,30" fill="#764ba2"/></svg>
       </button>
-      <!-- Bottom right (should be top left) -->
-      <button class="btn" onmousedown="sendCmd('G')" onmouseup="sendCmd('S')" ontouchstart="sendCmd('G')" ontouchend="sendCmd('S')">
+      <!-- Bottom right -->
+      <button class="btn" onpointerdown="handleButtonPress('G')" onpointerup="handleButtonRelease()">
         <svg viewBox="0 0 60 60"><polygon points="30,10 10,30 30,30" fill="#667eea"/><polygon points="30,30 10,30 30,10" fill="#764ba2"/></svg>
       </button>
     </div>
@@ -310,22 +311,42 @@ const char* htmlPage = R"rawliteral(
       </div>
     </div>
   </div>
+  <!-- Updated JavaScript block -->
   <script>
+    let isPressed = false;
+
     function sendCmd(cmd) {
       fetch('/cmd?dir=' + cmd);
     }
+
+    function handleButtonPress(cmd) {
+      if (isPressed) return;
+      isPressed = true;
+      sendCmd(cmd);
+    }
+
+    function handleButtonRelease() {
+      if (!isPressed) return;
+      sendCmd('S');
+      isPressed = false;
+    }
+
     function sendSpeed(val) {
       fetch('/speed?car=' + val);
     }
+
     function sendSteerSpeed(val) {
       fetch('/speed?steer=' + val);
     }
+
     function updateSpeedValue(val) {
       document.getElementById('speedValue').textContent = val + '%';
     }
+
     function updateSteerValue(val) {
       document.getElementById('steerValue').textContent = val + '%';
     }
+
     function toggleAutoHome() {
       var btn = document.getElementById('autoHomeBtn');
       var manualBtn = document.getElementById('manualHomeBtn');
@@ -339,11 +360,13 @@ const char* htmlPage = R"rawliteral(
       }
       fetch('/cmd?autoHome=' + (enabled ? '1' : '0'));
     }
+
     function sendGoHome() {
       var btn = document.getElementById('manualHomeBtn');
-      fetch('/cmd?manualHome=' + '1');
+      fetch('/cmd?manualHome=1');
     }
-    window.onload = function() {
+
+    window.onload = function () {
       var btn = document.getElementById('autoHomeBtn');
       var manualBtn = document.getElementById('manualHomeBtn');
       if (!btn.classList.contains('active')) {
