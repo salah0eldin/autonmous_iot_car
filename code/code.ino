@@ -152,11 +152,6 @@ void setup() {
     server.send(200, "text/html", htmlPage);
   });
 
-  // Serve current position
-  server.on("/position", HTTP_GET, []() {
-    server.send(200, "text/plain", String(current_position));
-  });
-
   // Handle direction commands
   server.on("/cmd", []() {
     if (server.hasArg("dir")) {
