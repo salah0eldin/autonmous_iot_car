@@ -13,20 +13,20 @@ const char* htmlPage = R"rawliteral(
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       color: #333;
     }
-    
+
     .container {
       max-width: 500px;
       margin: 0 auto;
       padding: 20px;
     }
-    
+
     .header { 
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
@@ -40,18 +40,16 @@ const char* htmlPage = R"rawliteral(
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    
+
     .controls { 
       display: grid; 
       grid-template-columns: repeat(3, 1fr); 
       gap: 15px; 
-      margin: 30px 0;
       max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto 30px;
     }
-    
-    .btn { 
+
+    .btn {
       background: rgba(255, 255, 255, 0.9);
       border: none;
       outline: none;
@@ -60,43 +58,38 @@ const char* htmlPage = R"rawliteral(
       padding: 15px;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+
+      /* ENABLE MULTI-TOUCH */
+      touch-action: none;
+      pointer-events: auto;
     }
-    
+
     .btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       background: rgba(255, 255, 255, 1);
     }
-    
-    .btn:active {
-      transform: translateY(0);
-    }
-    
+
     .btn svg { 
       width: 40px; 
       height: 40px;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
-    
+
     .slider-container { 
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 25px;
       padding: 30px;
-      margin: 30px 0;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    
+
     .slider-group {
       margin-bottom: 25px;
     }
-    
-    .slider-group:last-child {
-      margin-bottom: 0;
-    }
-    
+
     .slider-label { 
       font-size: 16px; 
       font-weight: 600; 
@@ -104,14 +97,14 @@ const char* htmlPage = R"rawliteral(
       color: #333;
       display: block;
     }
-    
+
     .slider-value { 
       font-size: 14px; 
       color: #666; 
       margin-left: 10px;
       font-weight: 500;
     }
-    
+
     .slider { 
       width: 100%;
       height: 8px;
@@ -121,41 +114,23 @@ const char* htmlPage = R"rawliteral(
       -webkit-appearance: none;
       margin: 10px 0;
     }
-    
+
     .slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
       width: 24px;
       height: 24px;
       border-radius: 50%;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      transition: all 0.2s ease;
     }
-    
-    .slider::-webkit-slider-thumb:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    }
-    
-    .slider::-moz-range-thumb {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
+
     .toggle-row { 
       display: flex; 
       flex-direction: column;
       gap: 15px;
       margin-top: 20px;
     }
-    
+
     .toggle-btn, .home-btn {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -166,134 +141,51 @@ const char* htmlPage = R"rawliteral(
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
-    
-    .toggle-btn:hover, .home-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    }
-    
-    .toggle-btn:active, .home-btn:active {
-      transform: translateY(0);
-    }
-    
+
     .toggle-btn.active {
       background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
     }
-    
-    .home-btn { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
+
     .home-btn:disabled {
       background: #ccc;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-    
-    .home-btn:disabled:hover {
-      transform: none;
-      box-shadow: none;
-    }
-    
-    .home-btn.active {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-    }
-    
-    .home-btn.active:hover {
-      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
-    }
-    
-    @media (max-width: 600px) {
-      .container {
-        padding: 15px;
-      }
-      
-      .header {
-        font-size: 20px;
-        padding: 15px;
-      }
-      
-      .slider-container {
-        padding: 20px;
-      }
-      
-      .slider-label { 
-        font-size: 14px; 
-      }
-      
-      .slider-value { 
-        font-size: 12px; 
-      }
-      
-      .toggle-btn, .home-btn { 
-        font-size: 14px; 
-        padding: 12px 20px; 
-      }
-      
-      .controls {
-        gap: 10px;
-      }
-      
-      .btn {
-        padding: 12px;
-      }
-      
-      .btn svg {
-        width: 35px;
-        height: 35px;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">NodeMCU Car Control</div>
-    <!-- HTML buttons with updated handlers -->
     <div class="controls">
-      <!-- Top left -->
-      <button class="btn" onpointerdown="handleButtonPress('J')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="30,50 50,30 30,30" fill="#667eea"/><polygon points="30,50 40,30 30,30" fill="#764ba2"/></svg>
+      <button class="btn" id="btnJ" onpointerdown="handleButtonPress('J', 'btnJ')" onpointerup="handleButtonRelease('btnJ')">
+        <svg viewBox="0 0 60 60"><polygon points="30,50 50,30 30,30" fill="#667eea"/></svg>
       </button>
-      <!-- Forward -->
-      <button class="btn" onpointerdown="handleButtonPress('F')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="30,10 50,30 10,30" fill="#667eea"/><polygon points="30,10 40,30 20,30" fill="#764ba2"/></svg>
+      <button class="btn" id="btnF" onpointerdown="handleButtonPress('F', 'btnF')" onpointerup="handleButtonRelease('btnF')">
+        <svg viewBox="0 0 60 60"><polygon points="30,10 50,30 10,30" fill="#667eea"/></svg>
       </button>
-      <!-- Top right -->
-      <button class="btn" onpointerdown="handleButtonPress('H')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="30,50 10,30 30,30" fill="#667eea"/><polygon points="30,50 20,30 30,30" fill="#764ba2"/></svg>
+      <button class="btn" id="btnH" onpointerdown="handleButtonPress('H', 'btnH')" onpointerup="handleButtonRelease('btnH')">
+        <svg viewBox="0 0 60 60"><polygon points="30,50 10,30 30,30" fill="#667eea"/></svg>
       </button>
-      <!-- Left -->
-      <button class="btn" onpointerdown="handleButtonPress('L')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="10,30 30,50 30,10" fill="#667eea"/><polygon points="10,30 30,40 30,20" fill="#764ba2"/></svg>
+      <button class="btn" id="btnL" onpointerdown="handleButtonPress('L', 'btnL')" onpointerup="handleButtonRelease('btnL')">
+        <svg viewBox="0 0 60 60"><polygon points="10,30 30,50 30,10" fill="#667eea"/></svg>
       </button>
-      <!-- Stop -->
-      <button class="btn" onpointerdown="handleButtonPress('S')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" stroke="#667eea" stroke-width="5" fill="none"/><rect x="20" y="20" width="20" height="20" fill="#764ba2"/></svg>
+      <button class="btn" id="btnS" onpointerdown="handleButtonPress('S', 'btnS')" onpointerup="handleButtonRelease('btnS')">
+        <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" stroke="#667eea" stroke-width="5" fill="none"/></svg>
       </button>
-      <!-- Right -->
-      <button class="btn" onpointerdown="handleButtonPress('R')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="50,30 30,50 30,10" fill="#667eea"/><polygon points="50,30 30,40 30,20" fill="#764ba2"/></svg>
+      <button class="btn" id="btnR" onpointerdown="handleButtonPress('R', 'btnR')" onpointerup="handleButtonRelease('btnR')">
+        <svg viewBox="0 0 60 60"><polygon points="50,30 30,50 30,10" fill="#667eea"/></svg>
       </button>
-      <!-- Bottom left -->
-      <button class="btn" onpointerdown="handleButtonPress('I')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="30,10 50,30 30,30" fill="#667eea"/><polygon points="30,30 50,30 30,10" fill="#764ba2"/></svg>
+      <button class="btn" id="btnI" onpointerdown="handleButtonPress('I', 'btnI')" onpointerup="handleButtonRelease('btnI')">
+        <svg viewBox="0 0 60 60"><polygon points="30,10 50,30 30,30" fill="#667eea"/></svg>
       </button>
-      <!-- Backward -->
-      <button class="btn" onpointerdown="handleButtonPress('B')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="30,50 50,30 10,30" fill="#667eea"/><polygon points="30,50 40,30 20,30" fill="#764ba2"/></svg>
+      <button class="btn" id="btnB" onpointerdown="handleButtonPress('B', 'btnB')" onpointerup="handleButtonRelease('btnB')">
+        <svg viewBox="0 0 60 60"><polygon points="30,50 50,30 10,30" fill="#667eea"/></svg>
       </button>
-      <!-- Bottom right -->
-      <button class="btn" onpointerdown="handleButtonPress('G')" onpointerup="handleButtonRelease()">
-        <svg viewBox="0 0 60 60"><polygon points="30,10 10,30 30,30" fill="#667eea"/><polygon points="30,30 10,30 30,10" fill="#764ba2"/></svg>
+      <button class="btn" id="btnG" onpointerdown="handleButtonPress('G', 'btnG')" onpointerup="handleButtonRelease('btnG')">
+        <svg viewBox="0 0 60 60"><polygon points="30,10 10,30 30,30" fill="#667eea"/></svg>
       </button>
     </div>
+
     <div class="slider-container">
       <div class="slider-group">
         <label class="slider-label">Car Speed</label>
@@ -311,24 +203,24 @@ const char* htmlPage = R"rawliteral(
       </div>
     </div>
   </div>
-  <!-- Updated JavaScript block -->
+
   <script>
-    let isPressed = false;
+    const activeButtons = new Set();
 
     function sendCmd(cmd) {
       fetch('/cmd?dir=' + cmd);
     }
 
-    function handleButtonPress(cmd) {
-      if (isPressed) return;
-      isPressed = true;
+    function handleButtonPress(cmd, btnId) {
+      if (activeButtons.has(btnId)) return;
+      activeButtons.add(btnId);
       sendCmd(cmd);
     }
 
-    function handleButtonRelease() {
-      if (!isPressed) return;
+    function handleButtonRelease(btnId) {
+      if (!activeButtons.has(btnId)) return;
       sendCmd('S');
-      isPressed = false;
+      activeButtons.delete(btnId);
     }
 
     function sendSpeed(val) {
@@ -348,9 +240,9 @@ const char* htmlPage = R"rawliteral(
     }
 
     function toggleAutoHome() {
-      var btn = document.getElementById('autoHomeBtn');
-      var manualBtn = document.getElementById('manualHomeBtn');
-      var enabled = btn.classList.toggle('active');
+      const btn = document.getElementById('autoHomeBtn');
+      const manualBtn = document.getElementById('manualHomeBtn');
+      const enabled = btn.classList.toggle('active');
       btn.textContent = enabled ? 'Disable Auto Go Home' : 'Enable Auto Go Home';
       manualBtn.disabled = enabled;
       if (enabled) {
@@ -362,13 +254,12 @@ const char* htmlPage = R"rawliteral(
     }
 
     function sendGoHome() {
-      var btn = document.getElementById('manualHomeBtn');
       fetch('/cmd?manualHome=1');
     }
 
     window.onload = function () {
-      var btn = document.getElementById('autoHomeBtn');
-      var manualBtn = document.getElementById('manualHomeBtn');
+      const btn = document.getElementById('autoHomeBtn');
+      const manualBtn = document.getElementById('manualHomeBtn');
       if (!btn.classList.contains('active')) {
         manualBtn.disabled = false;
         manualBtn.classList.add('active');
@@ -379,4 +270,4 @@ const char* htmlPage = R"rawliteral(
 </html>
 )rawliteral";
 
-#endif 
+#endif
