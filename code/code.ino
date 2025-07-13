@@ -1,9 +1,17 @@
 // =========================================================
 // NodeMCU Car Control
-// This code is designed to control a NodeMCU-based car with steering and throttle control via a web interface.
-// It uses an ESP32 with a web server to handle commands from a web page.
-// The car can be steered left or right, and it can move forward or backward with throttle control.
-// The code also includes a simple HTML interface for user interaction.
+
+// This code is designed to control a NodeMCU-based car
+// with steering and throttle control via a web interface.
+
+// It uses an ESP32 with a web server to handle
+// commands from a web page.
+
+// The car can be steered left or right, and it can move
+// forward or backward with throttle control.
+
+// The code also includes a simple HTML interface
+// for user interaction.
 // =========================================================
 
 // =========================================================
@@ -12,14 +20,14 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
+
 #include "webpage.h"
 
 // =========================================================
 // Constants and Definitions
 // =========================================================
-// Throttle values
-#define DAC_VALUE_RUN (255 * 1.8 / 3.3)
-#define DAC_VALUE_STOP (255 * 0.8 / 3.3)
+// Throttle stop/min value
+#define DAC_MIN_VALUE (255 * 0.8 / 3.3)
 
 // control pins
 #define PIN_THOTTLE 25
@@ -46,21 +54,22 @@ enum {
 };
 
 // steering
-typedef enum {
+enum {
   st_right = 0,
   st_left
-} SteeringDir;
+};
 
 // =========================================================
 // Global Variables
 // =========================================================
 // Const variables:
-const int maxSteeringSteps = 100;  // Limit to prevent oversteering
-const int braking_time = 100;      // ms
+const int max_steering_steps = 100;  // Limit to prevent oversteering
+const int braking_time = 100;        // ms
 
-int currentPosition = 0;       // Track current step position
-int Stepper_PUL_Width = 3000;  // Pulse width in micro sec
-SteeringDir dir = st_right;
+int car_speed = DAC_MIN_VALUE;
+int current_position = 0;        // Track current step position
+int stepper_pulse_width = 3000;  // Pulse width in micro sec
+bool auto_home_flag = 0;
 
 // WIFI variables:
 String command = "S";  //String to store app command state.
@@ -110,45 +119,73 @@ void setup() {
   // Handle direction commands
   server.on("/cmd", []() {
     if (server.hasArg("dir")) {
+
       String dir = server.arg("dir");
+
       Serial.print("Received command: ");
       Serial.println(dir);  // <-- Print the command sent
+
       moveDirection(dir);
+
       server.send(200, "text/plain", "OK");
+
     } else if (server.hasArg("autoHome")) {
+
       String autoHome = server.arg("autoHome");
+
       if (autoHome == "1") {
+
         Serial.println("Auto Go Home enabled");
-        // Here you can implement the logic for auto home
+
         goHome();
+
       } else {
+
         Serial.println("Auto Go Home disabled");
       }
+
       server.send(200, "text/plain", "OK");
+
     } else if (server.hasArg("manualHome")) {
+
       Serial.println("Manual Go Home triggered");
+
       goHome();
+
       server.send(200, "text/plain", "OK");
+
     } else {
+
       server.send(400, "text/plain", "Missing dir");
     }
   });
 
   // Handle speed commands
   server.on("/speed", []() {
-    if (server.hasArg("val")) {
-      int speed = server.arg("val").toInt();
+    if (server.hasArg("car")) {
+
+      int speed = server.arg("car").toInt();
+
       Serial.print("Received command: ");
       Serial.println(speed);  // <-- Print the command sent
+
       setSpeed(speed);
+
       server.send(200, "text/plain", "OK");
+
     } else if (server.hasArg("steer")) {
+
       int speed = server.arg("steer").toInt();
+
       Serial.print("Received command: ");
       Serial.println(speed);  // <-- Print the command sent
+
       setSteer(speed);
+
       server.send(200, "text/plain", "OK");
+
     } else {
+
       server.send(400, "text/plain", "Missing val");
     }
   });
@@ -161,120 +198,22 @@ void setup() {
 // =========================================================
 void loop() {
   server.handleClient();
-  static String lastCommand = "";
-  String newCommand = server.arg("State");
-
-  if (newCommand != "" && newCommand != lastCommand) {
-    command = newCommand;
-    Serial.print("CMD = ");
-    Serial.println(command);
-    switch (command[0]) {
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        {
-          Stepper_PUL_Width = (command[0] - '0' + 1) * 1000;
-          break;
-        }
-      case 'F':
-        {
-          goHome();
-          goAhead();
-          break;
-        }
-      case 'B':
-        {
-          goHome();
-          goBack();
-          break;
-        }
-      case 'S':
-        {
-          stopRobot();
-          break;
-        }
-
-      case 'L':
-        {
-          dir = st_left;
-          while (server.arg("State") == "L") {
-            goLeft();
-            server.handleClient();
-          }
-          break;
-        }
-      case 'R':
-        {
-          dir = st_right;
-          while (server.arg("State") == "R") {
-            goRight();
-            server.handleClient();
-          }
-          break;
-        }
-      case 'I':
-        {
-          goAhead();
-          dir = st_right;
-          while (server.arg("State") == "I") {
-            goRight();
-            server.handleClient();
-          }
-          break;
-        }
-      case 'G':
-        {
-          goAhead();
-          dir = st_left;
-          while (server.arg("State") == "G") {
-            goLeft();
-            server.handleClient();
-          }
-          break;
-        }
-      case 'J':
-        {
-          goBack();
-          dir = st_right;
-          while (server.arg("State") == "J") {
-            goRight();
-            server.handleClient();
-          }
-          break;
-        }
-      case 'H':
-        {
-          goBack();
-          dir = st_left;
-          while (server.arg("State") == "H") {
-            goLeft();
-            server.handleClient();
-          }
-          break;
-        }
-    }
-    lastCommand = command;
-  }
 }
 
 // =========================================================
 // Core Motor Functions
 // =========================================================
-void stepMotor(SteeringDir dir) {
-  //Set direction
-  digitalWrite(PIN_STEER_DIR, dir);
+void stepMotor() {
   //move one step
   digitalWrite(PIN_STEP, HIGH);
-  delayMicroseconds(Stepper_PUL_Width);
+  delayMicroseconds(stepper_pulse_width);
   digitalWrite(PIN_STEP, LOW);
-  delayMicroseconds(Stepper_PUL_Width);
+  delayMicroseconds(stepper_pulse_width);
+}
+
+void setDirection(SteeringDir dir) {
+  //Set direction
+  digitalWrite(PIN_STEER_DIR, dir);
 }
 
 void goAhead() {
@@ -283,7 +222,7 @@ void goAhead() {
   //Set direction
   digitalWrite(PIN_CAR_DIR, forward);
   //apply throttle
-  dacWrite(PIN_THOTTLE, DAC_VALUE_RUN);
+  dacWrite(PIN_THOTTLE, car_speed);
 }
 
 void goBack() {
@@ -292,82 +231,139 @@ void goBack() {
   //Set direction
   digitalWrite(PIN_CAR_DIR, backward);
   //apply throttle
-  dacWrite(PIN_THOTTLE, DAC_VALUE_RUN);
+  dacWrite(PIN_THOTTLE, car_speed);
 }
 
 void goLeft() {
-  if (currentPosition < maxSteeringSteps) {
-    stepMotor(st_left);
-    currentPosition++;
+  if (current_position < max_steering_steps) {
+    stepMotor();
+    current_position++;
   }
 }
 
 void goRight() {
-  if (currentPosition < maxSteeringSteps) {
-    stepMotor(st_right);
-    currentPosition++;
+  if (abs(current_position) <= max_steering_steps) {
+    stepMotor();
+    current_position--;
   }
 }
 
 void goHome() {
   //Check if Already at Home
-  if (currentPosition == 0) {
+  if (current_position == 0) {
     Serial.println("Already at Home");
     return;
   }
-  //Reverse direction
-  dir = ((dir == st_right) ? st_left : st_right);
-  digitalWrite(PIN_STEER_DIR, dir);
-  //Move back the current position
-  for (int i = 0; i < currentPosition; i++) {
-    digitalWrite(PIN_STEP, HIGH);
-    delayMicroseconds(Stepper_PUL_Width);
-    digitalWrite(PIN_STEP, LOW);
-    delayMicroseconds(Stepper_PUL_Width);
+
+  // Set direction
+  setDirection(current_position > 0 ? st_left : st_right);
+
+  // Move back Home
+  while (current_position != 0) {
+    stepMotor();
+    current_position += (current_position > 0 ? -1 : 1);
   }
-  currentPosition = 0;
-  Serial.println("Steering centered");
+
+  Serial.println("Steering Reached Home");
 }
 
 void stopRobot() {
-  // Steering home
-  goHome();
   // Release  throttle
-  dacWrite(PIN_THOTTLE, DAC_VALUE_STOP);
+  dacWrite(PIN_THOTTLE, DAC_MIN_VALUE);
+
   // Activate brakes
   digitalWrite(PIN_BRAKES, brakes_on);
-  delay(braking_time);
-  digitalWrite(PIN_BRAKES, brakes_off);
+
+  // Steering home
+  if (auto_home_flag) {
+    goHome();
+  }
 }
 
 void moveDirection(String dir) {
-  if (dir == "up") {
-    goAhead();
-  } else if (dir == "down") {
-    goBack();
-  } else if (dir == "left") {
-    goLeft();
-  } else if (dir == "right") {
-    goRight();
-  } else if (dir == "stop") {
-    stopRobot();
+  switch (dir[0]) {
+    case 'F':
+      {
+        goAhead();
+        break;
+      }
+    case 'B':
+      {
+        goBack();
+        break;
+      }
+    case 'S':
+      {
+        stopRobot();
+        break;
+      }
+    case 'L':
+      {
+        setDirection(st_left);
+        while (server.arg("State") == "L") {
+          goLeft();
+          server.handleClient();
+        }
+        break;
+      }
+    case 'R':
+      {
+        setDirection(st_right);
+        while (server.arg("State") == "R") {
+          goRight();
+          server.handleClient();
+        }
+        break;
+      }
+    case 'I':
+      {
+        goAhead();
+        setDirection(st_right);
+        while (server.arg("State") == "I") {
+          goRight();
+          server.handleClient();
+        }
+        break;
+      }
+    case 'G':
+      {
+        goAhead();
+        setDirection(st_left);
+        while (server.arg("State") == "G") {
+          goLeft();
+          server.handleClient();
+        }
+        break;
+      }
+    case 'J':
+      {
+        goBack();
+        setDirection(st_right);
+        while (server.arg("State") == "J") {
+          goRight();
+          server.handleClient();
+        }
+        break;
+      }
+    case 'H':
+      {
+        goBack();
+        setDirection(st_left);
+        while (server.arg("State") == "H") {
+          goLeft();
+          server.handleClient();
+        }
+        break;
+      }
   }
-  // Add more as needed for up_left, up_right, etc.
 }
 
 void setSpeed(int speed) {
-  // Clamp speed to 0-255
-  speed = constrain(speed, 0, 255);
-  dacWrite(PIN_THOTTLE, speed);
+  // map speed to min-255
+  car_speed = map(speed, 0, 100, DAC_MIN_VALUE, 255);
 }
 
 void setSteer(int speed) {
-  // Clamp speed to 0-255
-  speed = constrain(speed, 0, 255);
-  dacWrite(PIN_THOTTLE, speed);
-}
-
-void HTTP_handleRoot(void) {
-  server.send(200, "text/html", "");
-  delay(1);
+  // map speed to min-255
+  stepper_pulse_width = map(speed, 1, 100, 10000, 1000);
 }

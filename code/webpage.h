@@ -296,13 +296,13 @@ const char* htmlPage = R"rawliteral(
     <div class="slider-container">
       <div class="slider-group">
         <label class="slider-label">Car Speed</label>
-        <input type="range" min="0" max="100" value="50" class="slider" id="speedSlider" oninput="updateSpeedValue(this.value); sendSpeed(this.value)">
-        <span class="slider-value" id="speedValue">50</span>
+        <input type="range" min="0" max="100" value="0" class="slider" id="speedSlider" oninput="updateSpeedValue(this.value); sendSpeed(this.value)">
+        <span class="slider-value" id="speedValue">0%</span>
       </div>
       <div class="slider-group">
         <label class="slider-label">Steering Speed</label>
-        <input type="range" min="0" max="100" value="50" class="slider" id="steerSlider" oninput="updateSteerValue(this.value); sendSteerSpeed(this.value)">
-        <span class="slider-value" id="steerValue">50</span>
+        <input type="range" min="1" max="100" value="75" class="slider" id="steerSlider" oninput="updateSteerValue(this.value); sendSteerSpeed(this.value)">
+        <span class="slider-value" id="steerValue">75%</span>
       </div>
       <div class="toggle-row">
         <button id="autoHomeBtn" class="toggle-btn" onclick="toggleAutoHome()">Enable Auto Go Home</button>
@@ -315,16 +315,16 @@ const char* htmlPage = R"rawliteral(
       fetch('/cmd?dir=' + cmd);
     }
     function sendSpeed(val) {
-      fetch('/speed?val=' + val);
+      fetch('/speed?car=' + val);
     }
     function sendSteerSpeed(val) {
       fetch('/speed?steer=' + val);
     }
     function updateSpeedValue(val) {
-      document.getElementById('speedValue').textContent = val;
+      document.getElementById('speedValue').textContent = val + '%';
     }
     function updateSteerValue(val) {
-      document.getElementById('steerValue').textContent = val;
+      document.getElementById('steerValue').textContent = val + '%';
     }
     function toggleAutoHome() {
       var btn = document.getElementById('autoHomeBtn');
